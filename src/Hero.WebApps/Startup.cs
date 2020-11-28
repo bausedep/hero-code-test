@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Polly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,8 +43,17 @@ namespace Hero.WebApps
                 o.BaseAddress = new Uri(heroApiAddress);
                 o.DefaultRequestHeaders.Add("apiKey", apiKey);
             })
-                .AddTypedClient(c => Refit.RestService.For<ISearchApi>(c));
-            //services.AddSingleton<ISearchApi, FakeSearchApi>();
+             .AddTypedClient(c => Refit.RestService.For<ISearchApi>(c))
+            
+             //Add connection resilience to httpclient
+            .AddTransientHttpErrorPolicy(p => p.RetryAsync(3))
+            .AddTransientHttpErrorPolicy(p => p.CircuitBreakerAsync(5, TimeSpan.FromSeconds(30)));
+
+            bool useFakeService = Configuration.GetValue<bool>("UseFake");
+            if (useFakeService)
+            {
+                services.AddSingleton<ISearchApi, FakeSearchApi>();
+            }
 
             services.AddControllersWithViews();
 
@@ -76,8 +86,17 @@ namespace Hero.WebApps
         }
 
 
-        
+
+    }
+    public static class StartupExtension
+    {
+        public static IServiceCollection AddFakeService(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddSingleton<ISearchApi, FakeSearchApi>();
+            return services;
+        }
     }
 
-    
+
+
 }
