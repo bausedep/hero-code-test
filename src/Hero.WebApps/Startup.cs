@@ -1,6 +1,7 @@
 using Hero.WebApps.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,7 +27,8 @@ namespace Hero.WebApps
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDistributedMemoryCache();
-
+            services.AddControllersWithViews();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(10);
@@ -34,29 +36,13 @@ namespace Hero.WebApps
                 options.Cookie.IsEssential = true;
             });
 
-            // the AddHttpClient() will provide us with an instance of HttpClient
-            // available for Dependancy Injection in our services
-            services.AddHttpClient<IHeroService, HeroService>(o =>
-            {
-                string heroApiAddress = Configuration["HeroApiAddress"] ?? throw new ArgumentNullException("Hero api address is not set");
-                string apiKey = Configuration["ApiKey"] ?? throw new ArgumentNullException("Hero api key is not set");
-                o.BaseAddress = new Uri(heroApiAddress);
-                o.DefaultRequestHeaders.Add("apiKey", apiKey);
-            })
-             .AddTypedClient(c => Refit.RestService.For<ISearchApi>(c))
-            
-             //Add connection resilience to httpclient
-            .AddTransientHttpErrorPolicy(p => p.RetryAsync(3))
-            .AddTransientHttpErrorPolicy(p => p.CircuitBreakerAsync(5, TimeSpan.FromSeconds(30)));
+            services.AddHeroApiService(Configuration);
 
             bool useFakeService = Configuration.GetValue<bool>("UseFake");
             if (useFakeService)
             {
-                services.AddSingleton<ISearchApi, FakeSearchApi>();
+                services.AddFakeService();
             }
-
-            services.AddControllersWithViews();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -90,9 +76,29 @@ namespace Hero.WebApps
     }
     public static class StartupExtension
     {
-        public static IServiceCollection AddFakeService(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddFakeService(this IServiceCollection services)
         {
             services.AddSingleton<ISearchApi, FakeSearchApi>();
+            return services;
+        }
+
+        public static IServiceCollection AddHeroApiService(this IServiceCollection services, IConfiguration configuration)
+        {
+            // the AddHttpClient() will provide us with an instance of HttpClient
+            // available for Dependancy Injection in our services
+            services.AddHttpClient<IHeroService, HeroService>(o =>
+            {
+                string heroApiAddress = configuration["HeroApiAddress"] ?? throw new ArgumentNullException("Hero api address is not set");
+                string apiKey = configuration["ApiKey"] ?? throw new ArgumentNullException("Hero api key is not set");
+                o.BaseAddress = new Uri(heroApiAddress);
+                o.DefaultRequestHeaders.Add("apiKey", apiKey);
+            })
+             .AddTypedClient(c => Refit.RestService.For<ISearchApi>(c))
+             .AddTypedClient(c => Refit.RestService.For<IPaxApi>(c))
+
+            //Add connection resilience to httpclient
+            .AddTransientHttpErrorPolicy(p => p.RetryAsync(3))
+            .AddTransientHttpErrorPolicy(p => p.CircuitBreakerAsync(5, TimeSpan.FromSeconds(30)));
             return services;
         }
     }

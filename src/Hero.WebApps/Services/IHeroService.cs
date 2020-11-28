@@ -8,5 +8,6 @@ namespace Hero.WebApps.Services
     public interface IHeroService
     {
         public ISearchApi SearchApi { get; }
+        public IPaxApi PaxApi { get; }
     }
 }

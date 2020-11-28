@@ -1,0 +1,45 @@
+﻿@model SignUpModel
+@{
+    ViewData["Title"] = "Sign up";
+}
+
+<h1>Sign Up For Awesome Trip!</h1>
+<hr />
+<div class="row">
+    <div class="col-sm-4 col-6 offset-sm-1">
+        <form asp-controller="User" asp-action="SignUp" method="post" asp-route-returnurl="@ViewData[ViewDataKeys.ReturnURL]">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label class="control-label">First Name<span class="text-danger">*</span></label>
+                <input asp-for="First" class="form-control" required />
+                <span asp-validation-for="First" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Last Name<span class="text-danger">*</span></label>
+                <input asp-for="Last" class="form-control" required />
+                <span asp-validation-for="Last" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Mobile Number<span class="text-danger">*</span></label>
+                <input asp-for="Mobile" class="form-control" required />
+                <span class="font-italic small">Phone number format eg: "+6281910000023"</span>
+                <span asp-validation-for="Mobile" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Email<span class="text-danger">*</span></label>
+                <input asp-for="Email" class="form-control" required />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Age<span class="text-danger">*</span></label>
+                <input asp-for="Age" class="form-control" value="1" required />
+                <span asp-validation-for="Age" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Submit" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
