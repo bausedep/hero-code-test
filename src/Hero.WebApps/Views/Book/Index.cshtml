@@ -1,1 +1,132 @@
-﻿Welcome to book
+﻿@model BookViewModel
+@{
+    ViewData["Title"] = "Product Detail";
+}
+
+<div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6">
+                <div>
+                    <h3>@Model.ProductName</h3>
+                    <p>@Model.ShortDescription</p>
+                </div>
+                <form method="post">
+                    <input type="hidden" asp-for="ProductId" />
+                    <input type="hidden" asp-for="ProductName" />
+                    <input type="hidden" asp-for="ShortDescription" />
+
+                    <div class="form-group">
+                        <label class="control-label">Checkin Date<span class="text-danger">*</span></label>
+                        <input asp-for="CheckInDate" type="text" class="form-control datetimepicker-input" id="bookDateInput"
+                               data-toggle="datetimepicker" data-target="#bookDateInput" />
+                        <span asp-validation-for="CheckInDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group" id="checkInTimeGroup">
+                        <label class="control-label">Checkin Date<span class="text-danger">*</span></label>
+                        <input asp-for="CheckInTime" type="text" class="form-control datetimepicker-input" id="booktimeInput"
+                               data-toggle="datetimepicker" data-target="#booktimeInput" />
+                        <span asp-validation-for="CheckInTime" class="text-danger"></span>
+                    </div>
+
+
+
+                    <div id="pricesnapshot">
+
+                        <table>
+                            <tr>
+                                <td>Normal Price</td>
+                                <td id="originalPrice"></td>
+                            </tr>
+                            <tr>
+                                <td>Discount</td>
+                                <td id="discountAmount"></td>
+                            </tr>
+                            <tr>
+                                <td>Discount</td>
+                                <td id="finalPrice"></td>
+                            </tr>
+                        </table>
+                        <button type="submit" class="btn btn-primary">Continue</button>
+
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script type="text/javascript">
+
+        $(function () {
+            const bookDateInput = $("#bookDateInput");
+            const bookTimeInput = $("#booktimeInput");
+            const checkInTimeGroup = $("#checkInTimeGroup");
+            const priceSnapShot = $("#pricesnapshot");
+
+           
+            const checkPrice = {
+                postData : function (checkinDate, checkInTime) {
+                    $.ajax({
+                        type: "POST", url: "@Url.Action("CheckPrice")",
+                        success: function (data) {
+                            console.log(data);
+                            $("#originalPrice").html(data.originalPrice);
+                            $("#discountAmount").html(data.discountAmount);
+                            $("#finalPrice").html(data.finalPrice);
+                            priceSnapShot.show();
+                        },
+                        data: { checkinDate, checkInTime},
+                        accept: 'application/json'
+                    });
+                }
+            };
+
+            const scheduleChanged = function scheduleChanged() {
+                //Check book date has value
+                const checkInDate = bookDateInput.val();
+
+                if (checkInDate) {
+                    // Show the booktime
+                    checkInTimeGroup.show();
+
+                    const checkInTime = bookTimeInput.val();
+                    if (checkInTime) {
+                        //Show and get the price
+                       checkPrice.postData(checkInDate, checkInTime);
+                    } else {
+                        priceSnapShot.hide();
+                    }
+                } else {
+                    checkInTimeGroup.hide();
+                    priceSnapShot.hide();
+                    bookTimeInput.val(undefined);
+                }
+            };
+
+
+
+            bookDateInput.datetimepicker({
+                format: 'YYYY-MM-DD'
+            });
+
+            bookTimeInput.datetimepicker({
+                format: 'HH:mm'
+            });
+
+            checkInTimeGroup.hide();
+            priceSnapShot.hide();
+
+            //Event
+            bookDateInput.focusout(scheduleChanged);
+            bookTimeInput.focusout(scheduleChanged);
+        });
+
+
+
+    </script>
+
+}

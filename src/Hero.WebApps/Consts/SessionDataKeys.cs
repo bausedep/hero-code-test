@@ -9,6 +9,6 @@ namespace Hero.WebApps.Consts
     {
         public const string PaxId = nameof(PaxId);
         public const string MyName = nameof(MyName);
-        
+        public const string MyBook = nameof(MyBook);
     }
 }

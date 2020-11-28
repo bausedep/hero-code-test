@@ -7,7 +7,14 @@ namespace Hero.WebApps.Services
 {
     public interface IHeroService
     {
-        public ISearchApi SearchApi { get; }
-        public IPaxApi PaxApi { get; }
+        IProductApi ProductApi { get; }
+        IProductPricingApi ProductPricingApi { get; }
+        IPaxApi PaxApi { get; }
+        ISearchApi SearchApi { get; }
+        IScheduleApi ScheduleApi { get; }
+        IPaymentApi PaymentApi { get; }
+        IBookingApi BookingApi { get; }
+
+        IVoucherApi VoucherApi { get; }
     }
 }
