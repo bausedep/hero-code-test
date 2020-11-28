@@ -1,8 +1,48 @@
-﻿@{
+﻿@model IEnumerable<SearchDTO>
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h3 class="mb-5">Simple Booking Widget</h3>
+    <form>
+        <div class="input-group mx-auto" style="max-width:760px">
+            <input name="q" type="text" class="form-control" placeholder="Keyword" required>
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </div>
+    </form>
 </div>
+<section class="section mt-5">
+
+    @{ if (Model == null)
+        {
+            <p>No result found</p>
+        }
+        else
+        {
+            <div class="container">
+
+                @foreach (var searchItem in Model)
+                {
+                    <div class="row m-5">
+                        <div class="col-md-4 offset-md-2">
+                            <div>
+                                <img alt="Main Image" class="img-fluid" src="@searchItem.ImageUrl" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div>
+                                <h3><a asp-controller="Book" asp-action="Index" asp-route-id="@searchItem.Id">@searchItem.Name</a></h3>
+                                <p class="margin-top-s">@searchItem.ShortDescription</p>
+                            </div>
+                        </div>
+
+                    </div>
+                }
+            </div>
+        }
+    }
+</section>
+

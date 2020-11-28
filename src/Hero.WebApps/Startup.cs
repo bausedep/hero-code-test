@@ -1,3 +1,4 @@
+using Hero.WebApps.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -12,9 +13,10 @@ namespace Hero.WebApps
 {
     public class Startup
     {
+
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         public IConfiguration Configuration { get; }
@@ -22,7 +24,29 @@ namespace Hero.WebApps
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDistributedMemoryCache();
+
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(10);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
+            // the AddHttpClient() will provide us with an instance of HttpClient
+            // available for Dependancy Injection in our services
+            services.AddHttpClient<IHeroService, HeroService>(o =>
+            {
+                string heroApiAddress = Configuration["HeroApiAddress"] ?? throw new ArgumentNullException("Hero api address is not set");
+                string apiKey = Configuration["ApiKey"] ?? throw new ArgumentNullException("Hero api key is not set");
+                o.BaseAddress = new Uri(heroApiAddress);
+                o.DefaultRequestHeaders.Add("apiKey", apiKey);
+            })
+                .AddTypedClient(c => Refit.RestService.For<ISearchApi>(c));
+            //services.AddSingleton<ISearchApi, FakeSearchApi>();
+
             services.AddControllersWithViews();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -41,6 +65,7 @@ namespace Hero.WebApps
             app.UseRouting();
 
             app.UseAuthorization();
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {
@@ -49,5 +74,10 @@ namespace Hero.WebApps
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
+
+
+        
     }
+
+    
 }

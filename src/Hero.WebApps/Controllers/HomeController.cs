@@ -1,4 +1,5 @@
 ﻿using Hero.WebApps.Models;
+using Hero.WebApps.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -12,21 +13,30 @@ namespace Hero.WebApps.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IHeroService _heroService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IHeroService heroService)
         {
             _logger = logger;
+            _heroService = heroService ?? throw new ArgumentNullException(nameof(heroService));
         }
 
-        public IActionResult Index()
+        [HttpGet]
+        public async Task<IActionResult> Index(string q = "reef")
         {
-            return View();
+            if (q == null)
+            {
+                return View();
+            }
+            else
+            {
+                var searchResults = await _heroService.SearchApi.GetCatalogAsync(q, 1, 1);
+                return View(searchResults);
+            }
+
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
