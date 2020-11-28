@@ -40,7 +40,7 @@ namespace Hero.WebApps.Controllers
             else
             {
                 var product = await _heroService.ProductApi.GetProductAsync(id);
-                // Not clear, no data found on the staging and not enough explanation from business perspective
+                // Not clear, no which data has schedule
                 var schedules = await _heroService.ScheduleApi.GetSchedulesAsync(id, DateTime.UtcNow.ToString("yyyy-MM-dd"));
 
                 BookViewModel bookViewModel = new BookViewModel(product, schedules);

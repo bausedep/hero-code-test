@@ -32,21 +32,30 @@
 
 
 
-                    <div id="pricesnapshot">
+                    <div id="pricesnapshot" class="m-5">
 
-                        <table>
-                            <tr>
-                                <td>Normal Price</td>
-                                <td id="originalPrice"></td>
-                            </tr>
-                            <tr>
-                                <td>Discount</td>
-                                <td id="discountAmount"></td>
-                            </tr>
-                            <tr>
-                                <td>Discount</td>
-                                <td id="finalPrice"></td>
-                            </tr>
+                        <table class="table table-borderless lef">
+                            <thead>
+                                <tr>
+                                    <td colspan="3" class="text-center font-weight-bold">
+                                        Price
+                                    </td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Normal Price</td>
+                                    <td id="originalPrice" class="text-right"></td>
+                                </tr>
+                                <tr>
+                                    <td>Discount</td>
+                                    <td id="discountAmount" class="text-right"></td>
+                                </tr>
+                                <tr>
+                                    <td>Discount</td>
+                                    <td id="finalPrice" class="font-weight-bold text-right"></td>
+                                </tr>
+                            </tbody>
                         </table>
                         <button type="submit" class="btn btn-primary">Continue</button>
 
